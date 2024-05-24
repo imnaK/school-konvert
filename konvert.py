@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from typing import List
 
 class MultiKeyStaticDict:
     def __init__(self, initial_dict: dict):
@@ -18,7 +19,7 @@ class MultiKeyStaticDict:
             print(f"Unit '{key}' does not exist.")
             return None
 
-    def keys(self) List[str]:
+    def keys(self) -> List[str]:
         return self._dict.keys()
 
 BASES = MultiKeyStaticDict({
@@ -73,12 +74,22 @@ UNITS = MultiKeyStaticDict({
 # Input Validation #
 ####################
 
-def is_base(val: str) -> bool:
-    return val.lower() in BASES
+def type_base(val: str) -> None | str:
+    if not val.lower() in BASES.keys():
+        raise argparse.ArgumentError(f"Base {val} does not exist")
+    return val
 
-def is_unit(val: str) -> bool:
+def type_unit(val: str) -> None | str:
     if not val in UNITS.keys() or not val.lower() in UNITS.keys():
         raise argparse.ArgumentError(f"Unit {val} does not exist")
+    return val
+
+#####################
+# Convert Functions #
+#####################
+
+def base_to_base(num: str, from_base: str, to_base: str):
+   return None 
 
 ###################
 # Parse Arguments #
@@ -93,28 +104,33 @@ parser = argparse.ArgumentParser(
         """,
         )
 parser.add_argument(
-        'number',
+        "number",
         help="A number to input (any base)",
+        type=str,
         )
 parser.add_argument(
-        '-b',
-        '--from-base',
+        "-b",
+        "--from-base",
         help=HELP_BASE,
+        type=type_base,
         )
 parser.add_argument(
-        '-u',
-        '--from-unit',
+        "-u",
+        "--from-unit",
         help=HELP_UNITS,
+        type=type_unit,
         )
 parser.add_argument(
-        '-o',
-        '--to-base',
+        "-o",
+        "--to-base",
         help=HELP_BASE,
+        type=type_base,
         )
 parser.add_argument(
-        '-t',
-        '--to-unit',
+        "-t",
+        "--to-unit",
         help=HELP_UNITS,
+        type=type_unit,
         )
 args = parser.parse_args()
 
@@ -122,3 +138,4 @@ print(args)
 
 UNIT = "KiLoByTe".lower()
 print(UNITS[UNIT])
+
