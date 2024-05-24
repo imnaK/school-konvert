@@ -11,17 +11,22 @@ class MultiKeyStaticDict:
             for key in keys:
                 self._dict[key] = value
     
-    def __getitem__(self, key):
+    def __getitem__(self, key) -> int:
         try:
             return self._dict[key]
         except KeyError:
             print(f"Unit '{key}' does not exist.")
             return None
 
-    def keys(self):
+    def keys(self) List[str]:
         return self._dict.keys()
 
-INT_LITERALS = ["0b", "0", "0x"]
+BASES = MultiKeyStaticDict({
+    ("bin", "binary")     : 2,
+    ("oct", "octal")      : 8,
+    ("dec", "decimal")    : 10,
+    ("hex", "hexadecimal"): 16,
+})
 UNITS = MultiKeyStaticDict({
     ("b ", "bit")      : 1,
     ("N ", "nibble")   : 4,
@@ -68,10 +73,10 @@ UNITS = MultiKeyStaticDict({
 # Input Validation #
 ####################
 
-def is_base(val):
-    return val.lower() in INT_LITERALS
+def is_base(val) -> bool:
+    return val.lower() in BASES
 
-def is_unit(val):
+def is_unit(val) -> bool:
     if not val in UNITS.keys() or not val.lower() in UNITS.keys():
         raise argparse.ArgumentError(f"Unit {val} does not exist")
 
@@ -92,7 +97,7 @@ parser.add_argument(
         help="A number to input (any base)",
         )
 parser.add_argument(
-        '-f',
+        '-b',
         '--from-base',
         help=HELP_BASE,
         )
@@ -111,13 +116,9 @@ parser.add_argument(
         '--to-unit',
         help=HELP_UNITS,
         )
-parser.add_argument(
-        '-v',
-        '--verbose',
-        action='store_true',
-        help="If set outputs additional information",
-        )
 args = parser.parse_args()
+
+print(args)
 
 UNIT = "KiLoByTe".lower()
 print(UNITS[UNIT])
