@@ -4,14 +4,14 @@ import argparse
 import sys
 
 class MultiKeyStaticDict:
-    def __init__(self, initial_dict):
+    def __init__(self, initial_dict: dict):
         self._dict = {}
 
         for keys, value in initial_dict.items():
             for key in keys:
                 self._dict[key] = value
     
-    def __getitem__(self, key) -> int:
+    def __getitem__(self, key: str) -> int:
         try:
             return self._dict[key]
         except KeyError:
@@ -73,10 +73,10 @@ UNITS = MultiKeyStaticDict({
 # Input Validation #
 ####################
 
-def is_base(val) -> bool:
+def is_base(val: str) -> bool:
     return val.lower() in BASES
 
-def is_unit(val) -> bool:
+def is_unit(val: str) -> bool:
     if not val in UNITS.keys() or not val.lower() in UNITS.keys():
         raise argparse.ArgumentError(f"Unit {val} does not exist")
 
