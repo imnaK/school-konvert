@@ -1,0 +1,40 @@
+Units
+  b  - bit       - 1
+  N  - Nibble    - 4
+  B  - Byte      - 8
+
+  KB - Kilobyte  - 10 ** 3 * 8
+  MB - Megabyte  - 10 ** 6 * 8
+  GB - Gigabyte  - 10 ** 9 * 8
+  TB - Terabyte  - 10 ** 12 * 8
+  PB - Petabyte  - 10 ** 15 * 8
+  EB - Exabyte   - 10 ** 18 * 8
+  ZB - Zettabyte - 10 ** 21 * 8
+  YB - Yottabyte - 10 ** 24 * 8
+
+  KiB - Kibibyte - 2 ** 10 * 8
+  MiB - Mebibyte - 2 ** 20 * 8
+  GiB - Gibibyte - 2 ** 30 * 8
+  TiB - Tebibyte - 2 ** 40 * 8
+  PiB - Pebibyte - 2 ** 50 * 8
+  EiB - Exbibyte - 2 ** 60 * 8
+  ZiB - Zebibyte - 2 ** 70 * 8
+  YiB - Yobibyte - 2 ** 80 * 8
+
+  Kb - Kilobit  - 10 ** 3
+  Mb - Megabit  - 10 ** 6
+  Gb - Gigabit  - 10 ** 9
+  Tb - Terabit  - 10 ** 12
+  Pb - Petabit  - 10 ** 15
+  Eb - Exabit   - 10 ** 18
+  Zb - Zettabit - 10 ** 21
+  Yb - Yottabit - 10 ** 24
+
+  Kib - Kibibit - 2 ** 10
+  Mib - Mebibit - 2 ** 20
+  Gib - Gibibit - 2 ** 30
+  Tib - Tebibit - 2 ** 40
+  Pib - Pebibit - 2 ** 50
+  Eib - Exbibit - 2 ** 60
+  Zib - Zebibit - 2 ** 70
+  Yib - Yobibit - 2 ** 80
