@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import argparse
-import sys
 from typing import List
 
 class MultiKeyStaticDict:
@@ -23,10 +22,41 @@ class MultiKeyStaticDict:
         return self._dict.keys()
 
 BASES = MultiKeyStaticDict({
-    ("bin", "binary")     : 2,
-    ("oct", "octal")      : 8,
-    ("dec", "decimal")    : 10,
-    ("hex", "hexadecimal"): 16,
+    ("bin", "binary")                                 : 2,
+    ("ternary")                                       : 3,
+    ("quaternary")                                    : 4,
+    ("quinary")                                       : 5,
+    ("senary", "seximal")                             : 6,
+    ("septimal", "septinary")                         : 7,
+    ("oct", "octal")                                  : 8,
+    ("nonary", "nonal")                               : 9,
+    ("dec", "decimal", "denary")                      : 10,
+    ("undecimal", "unodecimal", "undenary")           : 11,
+    ("duodecimal", "dozenal")                         : 12,
+    ("tredecimal", "tridecimal")                      : 13,
+    ("quattuordecimal", "quadrodecimal")              : 14,
+    ("quindecimal", "pentadecimal")                   : 15,
+    ("hex", "hexadecimal", "sexadecimal", "sedecimal"): 16,
+    ("septendecimal", "heptadecimal")                 : 17,
+    ("octodecimal")                                   : 18,
+    ("undevicesimal", "nonadecimal")                  : 19,
+    ("vigesimal")                                     : 20,
+    # 21
+    # 22
+    # 23
+    ("quadravigesimal")                               : 24,
+    # 25
+    ("hexavigesimal")                                 : 26,
+    ("septemvigesimal")                               : 27,
+    # 28
+    # 29
+    ("trigesimal")                                    : 30,
+    # 31
+    ("duotrigesimal")                                 : 32,
+    # 33
+    # 34
+    # 35
+    ("hexatrigesimal")                                : 36,
 })
 UNITS = MultiKeyStaticDict({
     ("b ", "bit")      : 1,
@@ -74,12 +104,12 @@ UNITS = MultiKeyStaticDict({
 # Input Validation #
 ####################
 
-def type_base(val: str) -> None | str:
+def type_base(val: str) ->  str | int:
     if not val.lower() in BASES.keys():
         raise argparse.ArgumentError(f"Base {val} does not exist")
     return val
 
-def type_unit(val: str) -> None | str:
+def type_unit(val: str) -> str:
     if not val in UNITS.keys() or not val.lower() in UNITS.keys():
         raise argparse.ArgumentError(f"Unit {val} does not exist")
     return val
@@ -88,7 +118,7 @@ def type_unit(val: str) -> None | str:
 # Convert Functions #
 #####################
 
-def base_to_base(num: str, from_base: str, to_base: str):
+def base_to_base(num: str, from_base: int, to_base: int):
    return None 
 
 ###################
