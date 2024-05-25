@@ -23,9 +23,9 @@ class MultiKeyStaticDict:
 
 BASES = MultiKeyStaticDict({
     ("bin", "binary")                                 : 2,
-    ("ternary")                                       : 3,
-    ("quaternary")                                    : 4,
-    ("quinary")                                       : 5,
+    ("ternary",)                                      : 3,
+    ("quaternary",)                                   : 4,
+    ("quinary",)                                      : 5,
     ("senary", "seximal")                             : 6,
     ("septimal", "septinary")                         : 7,
     ("oct", "octal")                                  : 8,
@@ -38,25 +38,25 @@ BASES = MultiKeyStaticDict({
     ("quindecimal", "pentadecimal")                   : 15,
     ("hex", "hexadecimal", "sexadecimal", "sedecimal"): 16,
     ("septendecimal", "heptadecimal")                 : 17,
-    ("octodecimal")                                   : 18,
+    ("octodecimal",)                                  : 18,
     ("undevicesimal", "nonadecimal")                  : 19,
-    ("vigesimal")                                     : 20,
+    ("vigesimal",)                                    : 20,
     # 21
     # 22
     # 23
-    ("quadravigesimal")                               : 24,
+    ("quadravigesimal",)                              : 24,
     # 25
-    ("hexavigesimal")                                 : 26,
-    ("septemvigesimal")                               : 27,
+    ("hexavigesimal",)                                : 26,
+    ("septemvigesimal",)                              : 27,
     # 28
     # 29
-    ("trigesimal")                                    : 30,
+    ("trigesimal",)                                   : 30,
     # 31
-    ("duotrigesimal")                                 : 32,
+    ("duotrigesimal",)                                : 32,
     # 33
     # 34
     # 35
-    ("hexatrigesimal")                                : 36,
+    ("hexatrigesimal",)                               : 36,
 })
 UNITS = MultiKeyStaticDict({
     ("b ", "bit")      : 1,
@@ -105,26 +105,18 @@ UNITS = MultiKeyStaticDict({
 ####################
 
 def type_base(val: str) -> int:
-    try:
-        if val.lower() in BASES.keys():
-            return BASES[val.lower()]
-        else:
-            number_base = int(val)
-            if 2 <= number_base <= 36:
-                return number_base
-        raise argparse.ArgumentError(f"Base {val} may exist but this program does not support it")
-    except argparse.ArgumentError as e:
-        print(e.value)
+    if val.lower() in BASES.keys():
+        return BASES[val.lower()]
+    else:
+        number_base = int(val)
+        if 2 <= number_base <= 36:
+            return number_base
 
 def type_unit(val: str) -> str:
-    try:
-        if val in UNITS.keys():
-            return UNITS[val]
-        elif val.lower() in UNITS.keys():
-            return UNITS[val.lower()]
-        raise argparse.ArgumentError(f"Unit {val} may exist but this program does not support it")
-    except argparse.ArgumentError as e:
-        print(e.value)
+    if val in UNITS.keys():
+        return UNITS[val]
+    elif val.lower() in UNITS.keys():
+        return UNITS[val.lower()]
 
 #####################
 # Convert Functions #
@@ -177,4 +169,3 @@ parser.add_argument(
 args = parser.parse_args()
 
 print(args)
-
