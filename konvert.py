@@ -15,7 +15,7 @@ class MultiKeyStaticDict:
         try:
             return self._dict[key]
         except KeyError:
-            print(f"Unit '{key}' does not exist.")
+            print(f"Key '{key}' does not exist.")
             return None
 
     def keys(self) -> List[str]:
@@ -104,15 +104,27 @@ UNITS = MultiKeyStaticDict({
 # Input Validation #
 ####################
 
-def type_base(val: str) ->  str | int:
-    if not val.lower() in BASES.keys():
-        raise argparse.ArgumentError(f"Base {val} does not exist")
-    return val
+def type_base(val: str) -> int:
+    try:
+        if val.lower() in BASES.keys():
+            return BASES[val.lower()]
+        else:
+            number_base = int(val)
+            if 2 <= number_base <= 36:
+                return number_base
+        raise argparse.ArgumentError(f"Base {val} may exist but this program does not support it")
+    except argparse.ArgumentError as e:
+        print(e.value)
 
 def type_unit(val: str) -> str:
-    if not val in UNITS.keys() or not val.lower() in UNITS.keys():
-        raise argparse.ArgumentError(f"Unit {val} does not exist")
-    return val
+    try:
+        if val in UNITS.keys():
+            return UNITS[val]
+        elif val.lower() in UNITS.keys():
+            return UNITS[val.lower()]
+        raise argparse.ArgumentError(f"Unit {val} may exist but this program does not support it")
+    except argparse.ArgumentError as e:
+        print(e.value)
 
 #####################
 # Convert Functions #
@@ -165,7 +177,4 @@ parser.add_argument(
 args = parser.parse_args()
 
 print(args)
-
-UNIT = "KiLoByTe".lower()
-print(UNITS[UNIT])
 
