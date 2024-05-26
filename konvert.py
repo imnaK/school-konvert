@@ -103,12 +103,13 @@ UNITS = MultiKeyStaticDict({
 # Input Validation #
 ####################
 
-ALPHANUMERICS_LOWER = {value: index for index, value in enumerate(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"])}
+ALNUM_LIST = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+ALNUM_DICT = {value: index for index, value in enumerate(ALNUM_LIST)}
 BASE_MIN = 2
 BASE_MAX = 36
 
 def type_alphanumeric(val: str) -> str:
-    alnums = list(ALPHANUMERICS_LOWER.keys())
+    alnums = list(ALNUM_DICT.keys())
     if all(c in alnums for c in val.lower()):
         return val.lower()
     raise argparse.ArgumentTypeError(f"Number '{val}' may exist, but this program does not support it.")
@@ -182,14 +183,23 @@ def base_to_decimal(num: str, base: int) -> int:
     
     num_base_ten = 0
     for i in num:
-        num_base_ten = ALPHANUMERICS_LOWER[i] + base * num_base_ten
+        num_base_ten = ALNUM_DICT[i] + base * num_base_ten
     return num_base_ten
 
 def decimal_to_base(num: int, base: int) -> str:
-    pass
+    if base == 10:
+        return str(num)
+    
+    num_base = ""
+    while num > 0:
+        num_base = ALNUM_LIST[num % base] + num_base
+        num = num // base
+    return num_base
 
 def base_to_base(num: str, from_base: int, to_base: int) -> str:
     pass
 
 asdf = base_to_decimal("3cb", BASES["hex"])
 print(asdf)
+fdsa = decimal_to_base(254, 16)
+print(fdsa)
