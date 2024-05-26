@@ -183,7 +183,10 @@ def base_to_decimal(num: str, base: int) -> int:
     
     num_base_ten = 0
     for i in num:
-        num_base_ten = ALNUM_DICT[i] + base * num_base_ten
+        c = ALNUM_DICT[i]
+        if c + 1 > base:
+            raise TypeError(f"Digit '{i}' is out of base '{base}'.")
+        num_base_ten = c + base * num_base_ten
     return num_base_ten
 
 def decimal_to_base(num: int, base: int) -> str:
@@ -199,7 +202,17 @@ def decimal_to_base(num: int, base: int) -> str:
 def base_to_base(num: str, from_base: int, to_base: int) -> str:
     pass
 
-asdf = base_to_decimal("3cb", BASES["hex"])
-print(asdf)
-fdsa = decimal_to_base(254, 16)
-print(fdsa)
+###########
+# Program #
+###########
+
+num = args.number
+
+if args.from_base and args.to_base:
+    num = decimal_to_base(base_to_decimal(num, args.from_base), args.to_base)
+elif args.from_base:
+    num = base_to_decimal(num, args.from_base)
+elif args.to_base:
+    num = decimal_to_base(num, args.to_base)
+
+print(num)
