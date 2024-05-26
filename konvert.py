@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import argparse
-from typing import List
 
 class MultiKeyStaticDict:
     def __init__(self, initial_dict: dict):
@@ -18,7 +17,7 @@ class MultiKeyStaticDict:
             print(f"Key '{key}' does not exist.")
             return None
 
-    def keys(self) -> List[str]:
+    def keys(self) -> list:
         return self._dict.keys()
 
 BASES = MultiKeyStaticDict({
@@ -104,23 +103,46 @@ UNITS = MultiKeyStaticDict({
 # Input Validation #
 ####################
 
+ALPHANUMERICS_LOWER = {value: index for index, value in enumerate(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"])}
+BASE_MIN = 2
+BASE_MAX = 36
+
+def type_alphanumeric(val: str) -> str:
+    alnums = list(ALPHANUMERICS_LOWER.keys())
+    if all(c in alnums for c in val.lower()):
+        return val.lower()
+    raise argparse.ArgumentTypeError(f"Number '{val}' may exist, but this program does not support it.")
+
 def type_base(val: str) -> int:
     if val.lower() in BASES.keys():
         return BASES[val.lower()]
     else:
         number_base = int(val)
-        if 2 <= number_base <= 36:
+        if BASE_MIN <= number_base <= BASE_MAX:
             return number_base
+    raise argparse.ArgumentTypeError(f"Base '{val}' may exist, but this program does not support it.")
 
 def type_unit(val: str) -> str:
     if val in UNITS.keys():
         return UNITS[val]
     elif val.lower() in UNITS.keys():
         return UNITS[val.lower()]
+    raise argparse.ArgumentTypeError(f"Unit '{val}' may exist, but this program does not support it.")
 
 #####################
 # Convert Functions #
 #####################
+
+def base_to_decimal(num: str, base: int):
+    if base == 10:
+        return int(num)
+
+    num_base_ten = 0
+    for i in range(len(num)):
+        j = len(num) - i - 1
+        num_base_ten += ALPHANUMERICS_LOWER[num[j]] * (base ** i)
+
+    return num_base_ten
 
 def base_to_base(num: str, from_base: int, to_base: int):
    return None 
@@ -139,8 +161,8 @@ parser = argparse.ArgumentParser(
         )
 parser.add_argument(
         "number",
-        help="A number to input (any base)",
-        type=str,
+        help=f"A number to input (any base from {BASE_MIN} to {BASE_MAX})",
+        type=type_alphanumeric,
         )
 parser.add_argument(
         "-b",
@@ -168,4 +190,5 @@ parser.add_argument(
         )
 args = parser.parse_args()
 
-print(args)
+asdf = base_to_decimal("3cb", BASES["hex"])
+print(asdf)
