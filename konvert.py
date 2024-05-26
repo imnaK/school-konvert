@@ -152,24 +152,28 @@ parser.add_argument(
         "--from-base",
         help=HELP_BASE,
         type=type_base,
+        default=BASES["decimal"],
         )
 parser.add_argument(
         "-u",
         "--from-unit",
         help=HELP_UNITS,
         type=type_unit,
+        default=UNITS["bit"],
         )
 parser.add_argument(
         "-o",
         "--to-base",
         help=HELP_BASE,
         type=type_base,
+        default=BASES["decimal"],
         )
 parser.add_argument(
         "-t",
         "--to-unit",
         help=HELP_UNITS,
         type=type_unit,
+        default=UNITS["bit"],
         )
 args = parser.parse_args()
 
@@ -178,26 +182,32 @@ args = parser.parse_args()
 #####################
 
 def base_to_decimal(num: str, base: int) -> int:
-    if base == 10:
-        return int(num)
-    
-    num_base_ten = 0
-    for i in num:
-        c = ALNUM_DICT[i]
-        if c + 1 > base:
-            raise TypeError(f"Digit '{i}' is out of base '{base}'.")
-        num_base_ten = c + base * num_base_ten
-    return num_base_ten
+    try:
+        if base == 10:
+            return int(num)
+        
+        num_base_ten = 0
+        for i in num:
+            c = ALNUM_DICT[i]
+            if c + 1 > base:
+                raise ValueError
+            num_base_ten = c + base * num_base_ten
+        return num_base_ten
+    except ValueError as e:
+        raise ValueError(f"Number '{num}' is not of base '{base}'.")
 
 def decimal_to_base(num: int, base: int) -> str:
-    if base == 10:
-        return str(num)
-    
-    num_base = ""
-    while num > 0:
-        num_base = ALNUM_LIST[num % base] + num_base
-        num = num // base
-    return num_base
+    try:
+        if base == 10:
+            return str(num)
+        
+        num_base = ""
+        while num > 0:
+            num_base = ALNUM_LIST[num % base] + num_base
+            num = num // base
+        return num_base
+    except Exception as e:
+        raise ValueError(f"We do not have any idea what went wrong. Please check your inputs and try again.")
 
 def base_to_base(num: str, from_base: int, to_base: int) -> str:
     pass
@@ -206,13 +216,18 @@ def base_to_base(num: str, from_base: int, to_base: int) -> str:
 # Program #
 ###########
 
-num = args.number
+try:
+    num = args.number
 
-if args.from_base and args.to_base:
-    num = decimal_to_base(base_to_decimal(num, args.from_base), args.to_base)
-elif args.from_base:
-    num = base_to_decimal(num, args.from_base)
-elif args.to_base:
-    num = decimal_to_base(num, args.to_base)
+    if args.from_base and args.to_base:
+        num = decimal_to_base(base_to_decimal(num, args.from_base), args.to_base)
+    elif args.from_base:
+        num = base_to_decimal(num, args.from_base)
+    elif args.to_base:
+        num = decimal_to_base(num, args.to_base)
 
-print(num)
+    print(num)
+except Exception as e:
+    print(e)
+    exit(1)
+
