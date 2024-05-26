@@ -129,24 +129,6 @@ def type_unit(val: str) -> str:
         return UNITS[val.lower()]
     raise argparse.ArgumentTypeError(f"Unit '{val}' may exist, but this program does not support it.")
 
-#####################
-# Convert Functions #
-#####################
-
-def base_to_decimal(num: str, base: int):
-    if base == 10:
-        return int(num)
-
-    num_base_ten = 0
-    for i in range(len(num)):
-        j = len(num) - i - 1
-        num_base_ten += ALPHANUMERICS_LOWER[num[j]] * (base ** i)
-
-    return num_base_ten
-
-def base_to_base(num: str, from_base: int, to_base: int):
-   return None 
-
 ###################
 # Parse Arguments #
 ###################
@@ -189,6 +171,27 @@ parser.add_argument(
         type=type_unit,
         )
 args = parser.parse_args()
+
+#####################
+# Convert Functions #
+#####################
+
+def base_to_decimal(num: str, base: int) -> int:
+    if base == 10:
+        return int(num)
+
+    num_base_ten = 0
+    for i in range(len(num)):
+        j = len(num) - i - 1
+        num_base_ten += ALPHANUMERICS_LOWER[num[j]] * (base ** i)
+
+    return num_base_ten
+
+def decimal_to_base(num: int, base: int) -> str:
+    pass
+
+def base_to_base(num: str, from_base: int, to_base: int) -> str:
+    pass 
 
 asdf = base_to_decimal("3cb", BASES["hex"])
 print(asdf)
