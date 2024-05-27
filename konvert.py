@@ -58,9 +58,9 @@ BASES = MultiKeyStaticDict({
     ("hexatrigesimal",)                               : 36,
 })
 UNITS = MultiKeyStaticDict({
-    ("b ", "bit")      : 1,
-    ("N ", "nibble")   : 4,
-    ("B ", "byte")     : 8,
+    ("b", "bit")       : 1,
+    ("N", "nibble")    : 4,
+    ("B", "byte")      : 8,
 
     ("KB", "kilobyte") : 10 ** 3 * 8,
     ("MB", "megabyte") : 10 ** 6 * 8,
@@ -109,25 +109,31 @@ BASE_MIN = 2
 BASE_MAX = 36
 
 def type_alphanumeric(val: str) -> str:
-    alnums = list(ALNUM_DICT.keys())
-    if all(c in alnums for c in val.lower()):
+    if all(c in ALNUM_LIST for c in val.lower()):
         return val.lower()
+    
     raise argparse.ArgumentTypeError(f"Number '{val}' may exist, but this program does not support it.")
 
 def type_base(val: str) -> int:
-    if val.lower() in BASES.keys():
+    bases_list = list(BASES.keys())
+
+    if val.lower() in bases_list:
         return BASES[val.lower()]
     else:
         number_base = int(val)
         if BASE_MIN <= number_base <= BASE_MAX:
             return number_base
+    
     raise argparse.ArgumentTypeError(f"Base '{val}' may exist, but this program does not support it.")
 
 def type_unit(val: str) -> str:
-    if val in UNITS.keys():
+    units_list = list(UNITS.keys())
+    print(units_list)
+    if val in units_list:
         return UNITS[val]
-    elif val.lower() in UNITS.keys():
+    elif val.lower() in units_list:
         return UNITS[val.lower()]
+    
     raise argparse.ArgumentTypeError(f"Unit '{val}' may exist, but this program does not support it.")
 
 ###################
@@ -152,28 +158,28 @@ parser.add_argument(
         "--from-base",
         help=HELP_BASE,
         type=type_base,
-        default=BASES["decimal"],
+        default="decimal",
         )
 parser.add_argument(
         "-u",
         "--from-unit",
         help=HELP_UNITS,
         type=type_unit,
-        default=UNITS["bit"],
+        default="bit",
         )
 parser.add_argument(
         "-o",
         "--to-base",
         help=HELP_BASE,
         type=type_base,
-        default=BASES["decimal"],
+        default="decimal",
         )
 parser.add_argument(
         "-t",
         "--to-unit",
         help=HELP_UNITS,
         type=type_unit,
-        default=UNITS["bit"],
+        default="bit",
         )
 args = parser.parse_args()
 
@@ -203,7 +209,7 @@ def decimal_to_base(num: int, base: int) -> str:
         
         num_base = ""
         while num > 0:
-            num_base = ALNUM_LIST[num % base] + num_base
+            num_base = ALNUM_LIST[int(num % base)] + num_base
             num = num // base
         return num_base
     except Exception as e:
@@ -216,13 +222,17 @@ def base_to_base(num: str, from_base: int, to_base: int) -> str:
 # Program #
 ###########
 
+print(args)
+
 try:
     num = args.number
 
     num = base_to_decimal(num, args.from_base)
+    num = num / args.from_unit * args.to_unit
     num = decimal_to_base(num, args.to_base)
 
-    print(num)
+    print(f"in :\t{args.from_base}\t{args.number}\t{args.from_unit}")
+    print(f"out:\t{args.to_base}\t{num}\t{args.to_unit}")
 except Exception as e:
     print(e)
     exit(1)

@@ -1,6 +1,5 @@
-convert
-  base
-  unit
+fix
+  show units instead of numbers of bits
 option for
   decimals - how many
   print line by line or in one line space separated
