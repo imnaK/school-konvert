@@ -128,7 +128,7 @@ def type_base(val: str) -> int:
 
 def type_unit(val: str) -> str:
     units_list = list(UNITS.keys())
-    print(units_list)
+
     if val in units_list:
         return UNITS[val]
     elif val.lower() in units_list:
