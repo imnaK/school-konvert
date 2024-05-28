@@ -14,8 +14,7 @@ class MultiKeyStaticDict:
         try:
             return self._dict[key]
         except KeyError:
-            print(f"Key '{key}' does not exist.")
-            return None
+            raise KeyError(f"Key '{key}' does not exist.")
 
     def keys(self) -> list:
         return self._dict.keys()
@@ -215,14 +214,9 @@ def decimal_to_base(num: int, base: int) -> str:
     except Exception as e:
         raise ValueError(f"We do not have any idea what went wrong. Please check your inputs and try again.")
 
-def base_to_base(num: str, from_base: int, to_base: int) -> str:
-    pass
-
 ###########
 # Program #
 ###########
-
-print(args)
 
 try:
     num = args.number
