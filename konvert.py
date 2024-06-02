@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import argparse
+import sys
 
 class MultiKeyStaticDict:
     def __init__(self, initial_dict: dict):
@@ -139,80 +140,78 @@ def type_unit(val: str) -> str:
 # Parse Arguments #
 ###################
 
-HELP_BASE = "A prefix to define the base.\nDecimal: No prefix required or '0d'\nBinary: '0b'\nOctal: '0o'\nHexadecimal: '0x'"
-HELP_UNITS = "From bit over nibble and KB, TB up to YB. There are also Kb, KiB and Kib (also up to Yotta/Yobi). You can also write it out like 'bit' or 'kilobyte'."
-parser = argparse.ArgumentParser(
-        description="""
-        Unit Conversion: Effortlessly convert between storage units like Megabytes (MB), Kilobytes (KB), Gigabytes (GB), and more (including binary prefixes like GiB).
-        Base Conversion: Switch seamlessly between decimal (base 10), binary (base 2), hexadecimal (base 16), and octal (base 8) representations of numbers.
-        """,
-        )
-parser.add_argument(
-        "number",
-        help=f"A number to input (any base from {BASE_MIN} to {BASE_MAX})",
-        type=type_alphanumeric,
-        )
-parser.add_argument(
-        "-b",
-        "--from-base",
-        help=HELP_BASE,
-        type=type_base,
-        default="decimal",
-        )
-parser.add_argument(
-        "-u",
-        "--from-unit",
-        help=HELP_UNITS,
-        type=type_unit,
-        default="bit",
-        )
-parser.add_argument(
-        "-o",
-        "--to-base",
-        help=HELP_BASE,
-        type=type_base,
-        default="decimal",
-        )
-parser.add_argument(
-        "-t",
-        "--to-unit",
-        help=HELP_UNITS,
-        type=type_unit,
-        default="bit",
-        )
-args = parser.parse_args()
+def get_arguments() -> any:
+    HELP_BASE = "A prefix to define the base.\nDecimal: No prefix required or '0d'\nBinary: '0b'\nOctal: '0o'\nHexadecimal: '0x'"
+    HELP_UNITS = "From bit over nibble and KB, TB up to YB. There are also Kb, KiB and Kib (also up to Yotta/Yobi). You can also write it out like 'bit' or 'kilobyte'."
+    parser = argparse.ArgumentParser(
+            description="""
+            Unit Conversion: Effortlessly convert between storage units like Megabytes (MB), Kilobytes (KB), Gigabytes (GB), and more (including binary prefixes like GiB).
+            Base Conversion: Switch seamlessly between decimal (base 10), binary (base 2), hexadecimal (base 16), and octal (base 8) representations of numbers.
+            """,
+            )
+    parser.add_argument(
+            "number",
+            help=f"A number to input (any base from {BASE_MIN} to {BASE_MAX})",
+            type=type_alphanumeric,
+            )
+    parser.add_argument(
+            "-b",
+            "--from-base",
+            help=HELP_BASE,
+            type=type_base,
+            default="decimal",
+            )
+    parser.add_argument(
+            "-u",
+            "--from-unit",
+            help=HELP_UNITS,
+            type=type_unit,
+            default="bit",
+            )
+    parser.add_argument(
+            "-o",
+            "--to-base",
+            help=HELP_BASE,
+            type=type_base,
+            default="decimal",
+            )
+    parser.add_argument(
+            "-t",
+            "--to-unit",
+            help=HELP_UNITS,
+            type=type_unit,
+            default="bit",
+            )
+
+    return parser.parse_args()
 
 #####################
 # Convert Functions #
 #####################
 
 def base_to_int(num: str, base: int) -> int:
-    try:
-        ret = 0
-        for i in num:
-            c = ALNUM_DICT[i]
-            if c + 1 > base:
-                raise ValueError
-            ret = c + base * ret
-        return ret
-    except ValueError as e:
-        raise ValueError(f"Number '{num}' is not of base '{base}'.")
+    ret = 0
+    for i in num:
+        c = ALNUM_DICT[i]
+        if c + 1 > base:
+            raise ValueError(f"Number '{num}' is not of base '{base}'.")
+        ret = c + base * ret
+    return ret
 
 def int_to_base(num: int, base: int) -> str:
-    try:
-        ret = ""
-        while num > 0:
-            ret = ALNUM_LIST[num % base] + ret
-            num = num // base
-        return ret
-    except Exception as e:
-        raise ValueError(f"We do not have any idea what went wrong. Please check your inputs and try again.")
+    ret = ""
+    while num > 0:
+        ret = ALNUM_LIST[num % base] + ret
+        num = num // base
+    return ret
 
 ###########
 # Program #
 ###########
 
-try:
+def main() -> int:
+    args = get_arguments()    
+
     num = args.number
 
     num = base_to_int(num, args.from_base)
@@ -221,7 +220,9 @@ try:
 
     print(f"in :\t{args.from_base}\t{args.number}\t{args.from_unit}")
     print(f"out:\t{args.to_base}\t{num}\t{args.to_unit}")
-except Exception as e:
-    print(e)
-    exit(1)
+    
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())
 
