@@ -119,7 +119,7 @@ def type_base(val: str) -> int:
     if val.lower() in bases_list:
         return BASES[val.lower()]
     else:
-        number_base = int(val)
+        number_base = base_to_int(val, BASES["decimal"])
         if BASE_MIN <= number_base <= BASE_MAX:
             return number_base
     
@@ -186,31 +186,25 @@ args = parser.parse_args()
 # Convert Functions #
 #####################
 
-def base_to_decimal(num: str, base: int) -> int:
+def base_to_int(num: str, base: int) -> int:
     try:
-        if base == 10:
-            return int(num)
-        
-        num_base_ten = 0
+        ret = 0
         for i in num:
             c = ALNUM_DICT[i]
             if c + 1 > base:
                 raise ValueError
-            num_base_ten = c + base * num_base_ten
-        return num_base_ten
+            ret = c + base * ret
+        return ret
     except ValueError as e:
         raise ValueError(f"Number '{num}' is not of base '{base}'.")
 
-def decimal_to_base(num: int, base: int) -> str:
+def int_to_base(num: int, base: int) -> str:
     try:
-        if base == 10:
-            return str(num)
-        
-        num_base = ""
+        ret = ""
         while num > 0:
-            num_base = ALNUM_LIST[int(num % base)] + num_base
+            ret = ALNUM_LIST[num % base] + ret
             num = num // base
-        return num_base
+        return ret
     except Exception as e:
         raise ValueError(f"We do not have any idea what went wrong. Please check your inputs and try again.")
 
@@ -221,9 +215,9 @@ def decimal_to_base(num: int, base: int) -> str:
 try:
     num = args.number
 
-    num = base_to_decimal(num, args.from_base)
-    num = num / args.from_unit * args.to_unit
-    num = decimal_to_base(num, args.to_base)
+    num = base_to_int(num, args.from_base)
+    num = num // args.from_unit * args.to_unit
+    num = int_to_base(num, args.to_base)
 
     print(f"in :\t{args.from_base}\t{args.number}\t{args.from_unit}")
     print(f"out:\t{args.to_base}\t{num}\t{args.to_unit}")
