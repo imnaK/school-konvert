@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+from typing import Dict, Tupel
 import argparse
 import sys
 
@@ -17,7 +18,7 @@ class MultiKeyStaticDict:
         except KeyError:
             raise KeyError(f"Key '{key}' does not exist.")
 
-    def keys(self) -> list:
+    def keys(self) -> Dict[str, str]:
         return self._dict.keys()
 
 BASES = MultiKeyStaticDict({
@@ -105,12 +106,20 @@ UNITS = MultiKeyStaticDict({
 
 ALNUM_LIST = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
 ALNUM_DICT = {value: index for index, value in enumerate(ALNUM_LIST)}
+DELIMITER = "."
 BASE_MIN = 2
 BASE_MAX = 36
 
-def type_alphanumeric(val: str) -> str:
+def type_alphanumeric(val: str) -> Tupel[str, int]:
+    delimiter_pos = val.find(DELIMITER) 
+    delimiter_offset = len(val) - delimiter_pos
+    
+    if delimiter_pos == -1:
+        delimiter_offset = 0
+        val.pop(delimiter_pos)
+
     if all(c in ALNUM_LIST for c in val.lower()):
-        return val.lower()
+        return (val.lower(), delimiter_offset)
     
     raise argparse.ArgumentTypeError(f"Number '{val}' may exist, but this program does not support it.")
 
@@ -205,6 +214,9 @@ def int_to_base(num: int, base: int) -> str:
         num = num // base
     return ret
 
+def shift_by_offset(num: int, base: int, offset: int):
+    return num * base ** -offset
+
 ###########
 # Program #
 ###########
@@ -212,10 +224,11 @@ def int_to_base(num: int, base: int) -> str:
 def main() -> int:
     args = get_arguments()    
 
-    num = args.number
+    (num, delimiter_offset) = args.number
 
     num = base_to_int(num, args.from_base)
-    num = num // args.from_unit * args.to_unit
+    num = shift_by_offset(num, args.from_base, delimiter_offset)
+    num = num / args.from_unit * args.to_unit
     num = int_to_base(num, args.to_base)
 
     print(f"in :\t{args.from_base}\t{args.number}\t{args.from_unit}")
@@ -226,3 +239,4 @@ def main() -> int:
 if __name__ == "__main__":
     sys.exit(main())
 
+# 123.45 = 12345 / b^2
