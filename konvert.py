@@ -22,41 +22,41 @@ class MultiKeyStaticDict:
         return self._dict.keys()
 
 BASES = MultiKeyStaticDict({
-    ("bin", "binary")                                 : 2,
-    ("ternary",)                                      : 3,
-    ("quaternary",)                                   : 4,
-    ("quinary",)                                      : 5,
-    ("senary", "seximal")                             : 6,
-    ("septimal", "septinary")                         : 7,
-    ("oct", "octal")                                  : 8,
-    ("nonary", "nonal")                               : 9,
-    ("dec", "decimal", "denary")                      : 10,
-    ("undecimal", "unodecimal", "undenary")           : 11,
-    ("duodecimal", "dozenal")                         : 12,
-    ("tredecimal", "tridecimal")                      : 13,
-    ("quattuordecimal", "quadrodecimal")              : 14,
-    ("quindecimal", "pentadecimal")                   : 15,
-    ("hex", "hexadecimal", "sexadecimal", "sedecimal"): 16,
-    ("septendecimal", "heptadecimal")                 : 17,
-    ("octodecimal",)                                  : 18,
-    ("undevicesimal", "nonadecimal")                  : 19,
-    ("vigesimal",)                                    : 20,
-    # 21
-    # 22
-    # 23
-    ("quadravigesimal",)                              : 24,
-    # 25
-    ("hexavigesimal",)                                : 26,
-    ("septemvigesimal",)                              : 27,
-    # 28
-    # 29
-    ("trigesimal",)                                   : 30,
-    # 31
-    ("duotrigesimal",)                                : 32,
-    # 33
-    # 34
-    # 35
-    ("hexatrigesimal",)                               : 36,
+    ("bin", "binary")                                   : 2,
+    ("ternary",)                                        : 3,
+    ("quaternary",)                                     : 4,
+    ("quinary",)                                        : 5,
+    ("senary", "seximal")                               : 6,
+    ("septimal", "septinary", "septenary")              : 7,
+    ("oct", "octal")                                    : 8,
+    ("nonary", "nonal")                                 : 9,
+    ("dec", "decimal", "denary")                        : 10,
+    ("undecimal", "unodecimal", "undenary")             : 11,
+    ("duodecimal", "dozenal")                           : 12,
+    ("tredecimal", "tridecimal")                        : 13,
+    ("quattuordecimal", "quadrodecimal", "tetradecimal"): 14,
+    ("quindecimal", "pentadecimal")                     : 15,
+    ("hex", "hexadecimal", "sexadecimal", "sedecimal")  : 16,
+    ("septendecimal", "heptadecimal")                   : 17,
+    ("octodecimal",)                                    : 18,
+    ("undevicesimal", "nonadecimal", "enneadecimal")    : 19,
+    ("vigesimal",)                                      : 20,
+    ("unvigesimal",)                                    : 21,
+    ("duovigesimal",)                                   : 22, 
+    ("trivigesimal",)                                   : 23, 
+    ("quadravigesimal", "tetravigesimal")               : 24,
+    ("pentavigesimal",)                                 : 25, 
+    ("hexavigesimal",)                                  : 26,
+    ("septemvigesimal", "heptavigesimal")               : 27,
+    ("octovigesimal",)                                  : 28,
+    ("enneavigesimal",)                                 : 29,
+    ("trigesimal",)                                     : 30,
+    ("untrigesimal",)                                   : 31,
+    ("duotrigesimal",)                                  : 32,
+    ("tritrigesimal",)                                  : 33,
+    ("tetratrigesimal",)                                : 34,
+    ("pentatrigesimal",)                                : 35,
+    ("hexatrigesimal",)                                 : 36,
 })
 UNITS = MultiKeyStaticDict({
     ("b", "bit")       : 1,
