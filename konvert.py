@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 
-from typing import Dict, Tupel
+from typing import Dict, Tuple, KeysView
 import argparse
 import sys
 
 class MultiKeyStaticDict:
-    def __init__(self, initial_dict: dict):
-        self._dict = {}
+    def __init__(self, initial_dict: Dict[tuple, int]):
+        self._dict: Dict[str, int] = {}
 
         for keys, value in initial_dict.items():
             for key in keys:
@@ -18,7 +18,7 @@ class MultiKeyStaticDict:
         except KeyError:
             raise KeyError(f"Key '{key}' does not exist.")
 
-    def keys(self) -> Dict[str, str]:
+    def keys(self) -> KeysView[str]:
         return self._dict.keys()
 
 BASES = MultiKeyStaticDict({
@@ -110,7 +110,7 @@ DELIMITER = "."
 BASE_MIN = 2
 BASE_MAX = 36
 
-def type_alphanumeric(val: str) -> Tupel[str, int]:
+def type_alphanumeric(val: str) -> Tuple[str, int]:
     delimiter_pos = val.find(DELIMITER) 
     delimiter_offset = len(val) - delimiter_pos
     
@@ -135,7 +135,7 @@ def type_base(val: str) -> int:
     
     raise argparse.ArgumentTypeError(f"Base '{val}' may exist, but this program does not support it.")
 
-def type_unit(val: str) -> str:
+def type_unit(val: str) -> int:
     units_list = list(UNITS.keys())
 
     if val in units_list:
