@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from typing import Dict, Tuple, KeysView
+from typing import Dict, Tuple, KeysView, Any
 import argparse
 import sys
 
@@ -105,7 +105,7 @@ UNITS = MultiKeyStaticDict({
 ####################
 
 ALNUM_LIST = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
-ALNUM_DICT = {value: index for index, value in enumerate(ALNUM_LIST)}
+ALNUM_DICT = {val: idx for idx, val in enumerate(ALNUM_LIST)}
 DELIMITER = "."
 BASE_MIN = 2
 BASE_MAX = 36
@@ -116,7 +116,8 @@ def type_alphanumeric(val: str) -> Tuple[str, int]:
     
     if delimiter_pos == -1:
         delimiter_offset = 0
-        val.pop(delimiter_pos)
+    else:
+        val = val[:delimiter_pos] + val[delimiter_pos + 1:]
 
     if all(c in ALNUM_LIST for c in val.lower()):
         return (val.lower(), delimiter_offset)
@@ -149,7 +150,7 @@ def type_unit(val: str) -> int:
 # Parse Arguments #
 ###################
 
-def get_arguments() -> any:
+def get_arguments() -> Any:
     HELP_BASE = "A prefix to define the base.\nDecimal: No prefix required or '0d'\nBinary: '0b'\nOctal: '0o'\nHexadecimal: '0x'"
     HELP_UNITS = "From bit over nibble and KB, TB up to YB. There are also Kb, KiB and Kib (also up to Yotta/Yobi). You can also write it out like 'bit' or 'kilobyte'."
     parser = argparse.ArgumentParser(
@@ -198,21 +199,34 @@ def get_arguments() -> any:
 # Convert Functions #
 #####################
 
+def float_to_int(num: float) -> int:
+    if num < 0:
+        return -(float_to_int(-num))
+
+    num_str = str(num)
+    num_whole = num_str.split(".")[0]
+
+    res = 0
+    for digit in num_whole:
+        digit_num = ord(digit) - 48
+        res = res * 10 + digit_num
+    return res
+
 def base_to_int(num: str, base: int) -> int:
-    ret = 0
+    res = 0
     for i in num:
         c = ALNUM_DICT[i]
         if c + 1 > base:
             raise ValueError(f"Number '{num}' is not of base '{base}'.")
-        ret = c + base * ret
-    return ret
+        res = c + base * res
+    return res
 
 def int_to_base(num: int, base: int) -> str:
-    ret = ""
+    res = ""
     while num > 0:
-        ret = ALNUM_LIST[num % base] + ret
+        res = ALNUM_LIST[float_to_int(num % base)] + res
         num = num // base
-    return ret
+    return res
 
 def shift_by_offset(num: int, base: int, offset: int):
     return num * base ** -offset
@@ -226,12 +240,18 @@ def main() -> int:
 
     (num, delimiter_offset) = args.number
 
+    print("num:", num)
     num = base_to_int(num, args.from_base)
+    print("base_to_int:", num)
     num = shift_by_offset(num, args.from_base, delimiter_offset)
+    print("shift_by_offset:", num)
     num = num / args.from_unit * args.to_unit
+    print("unit calculation:", num)
     num = int_to_base(num, args.to_base)
+    print("int_to_base:", num)
 
-    print(f"in :\t{args.from_base}\t{args.number}\t{args.from_unit}")
+    print("base - number - unit")
+    print(f"in :\t{args.from_base}\t{args.number[0]}\t{args.from_unit}")
     print(f"out:\t{args.to_base}\t{num}\t{args.to_unit}")
     
     return 0
@@ -239,4 +259,5 @@ def main() -> int:
 if __name__ == "__main__":
     sys.exit(main())
 
+# notes will be removed later, shouldn't be here in the first place tho
 # 123.45 = 12345 / b^2
