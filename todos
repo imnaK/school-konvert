@@ -1,5 +1,8 @@
 fix
-  show units instead of numbers of bits
+  false interpretation of "-n'-+-+-+3'". should be negative but is not
+  visual bug of comma (if no comma is present in input)
+  visual bug of comma (no comma in printed "in" even if entered)
+
 option for
   decimals - how many
   print line by line or in one line space separated

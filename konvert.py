@@ -127,7 +127,7 @@ def type_alphanumeric(val: str) -> Tuple[str, int, bool]:
         val = val[1:]
 
     if all(c in ALNUM_LIST for c in val.lower()):
-        return (val.lower(), delimiter_offset, is_negative > 0)
+        return (val.lower(), delimiter_offset, is_negative)
     
     raise argparse.ArgumentTypeError(f"Number '{val}' may exist, but this program does not support it.")
 
@@ -158,16 +158,17 @@ def type_unit(val: str) -> int:
 ###################
 
 def get_arguments() -> Any:
-    HELP_BASE = "A prefix to define the base.\nDecimal: No prefix required or '0d'\nBinary: '0b'\nOctal: '0o'\nHexadecimal: '0x'"
+    HELP_BASE = f"Base range is from {BASE_MIN} to {BASE_MAX} and accepts numbers and also the common words."
     HELP_UNITS = "From bit over nibble and KB, TB up to YB. There are also Kb, KiB and Kib (also up to Yotta/Yobi). You can also write it out like 'bit' or 'kilobyte'."
     parser = argparse.ArgumentParser(
             description="""
             Unit Conversion: Effortlessly convert between storage units like Megabytes (MB), Kilobytes (KB), Gigabytes (GB), and more (including binary prefixes like GiB).
-            Base Conversion: Switch seamlessly between decimal (base 10), binary (base 2), hexadecimal (base 16), and octal (base 8) representations of numbers.
+            Base Conversion: Switch seamlessly between any base representations of numbers. See below for the range of bases this program supports.
             """,
             )
     parser.add_argument(
-            "number",
+            "-n",
+            "--number",
             help=f"A number to input (any base from {BASE_MIN} to {BASE_MAX})",
             type=type_alphanumeric,
             )
@@ -255,7 +256,7 @@ def float_to_base(num: float, base: int) -> str:
 
     return res + DELIMITER + res_decimals
 
-def shift_right(num: int, base: int, offset: int) -> Any:
+def shift_right(num: int, base: int, offset: int) -> float:
     return num / base ** offset
 
 ###########
