@@ -254,7 +254,7 @@ def float_to_base(num: float, base: int) -> str:
         res_decimals += ALNUM_LIST[l]
         num_decimals -= l
 
-    return res + DELIMITER + res_decimals
+    return (res + DELIMITER + res_decimals) if res_decimals else res
 
 def shift_right(num: int, base: int, offset: int) -> float:
     return num / base ** offset
