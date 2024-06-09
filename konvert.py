@@ -109,17 +109,25 @@ DELIMITER = "."
 BASE_MIN = 2
 BASE_MAX = 36
 
-def type_alphanumeric(val: str) -> Tuple[str, int]:
+def type_alphanumeric(val: str) -> Tuple[str, int, bool]:
+    val = val.strip()
     delimiter_pos = val.find(DELIMITER) 
-    delimiter_offset = len(val) - delimiter_pos
+    delimiter_offset = None 
     
     if delimiter_pos == -1:
         delimiter_offset = 0
     else:
-        val = val[:delimiter_pos] + val[delimiter_pos + 1:]
+        val = val.replace(DELIMITER, "")
+        delimiter_offset = len(val) - delimiter_pos
+
+    is_negative = False
+    while val[0] in "-+":
+        if val[0] == "-" or is_negative:
+            is_negative = not is_negative
+        val = val[1:]
 
     if all(c in ALNUM_LIST for c in val.lower()):
-        return (val.lower(), delimiter_offset)
+        return (val.lower(), delimiter_offset, is_negative > 0)
     
     raise argparse.ArgumentTypeError(f"Number '{val}' may exist, but this program does not support it.")
 
@@ -207,7 +215,7 @@ def float_to_int(num: float) -> int:
 
     res = 0
     for digit in num_whole:
-        digit_num = ord(digit) - 48
+        digit_num = ALNUM_LIST.index(digit)
         res = res * 10 + digit_num
     return res
 
@@ -224,11 +232,31 @@ def int_to_base(num: int, base: int) -> str:
     res = ""
     while num > 0:
         res = ALNUM_LIST[float_to_int(num % base)] + res
-        num = num // base
+        num //= base
     return res
 
-def shift_by_offset(num: int, base: int, offset: int):
-    return num * base ** -offset
+def float_to_base(num: float, base: int) -> str:
+    res = ""
+    num_whole = float_to_int(num)
+    num_decimals = num - num_whole
+
+    while num_whole > 0:
+        res = ALNUM_LIST[float_to_int(num_whole % base)] + res
+        num_whole //= base
+
+    res_decimals = ""
+    for i in range(10):
+        if num_decimals == 0:
+            break
+        num_decimals *= base
+        l = float_to_int(num_decimals)
+        res_decimals += ALNUM_LIST[l]
+        num_decimals -= l
+
+    return res + DELIMITER + res_decimals
+
+def shift_right(num: int, base: int, offset: int) -> Any:
+    return num / base ** offset
 
 ###########
 # Program #
@@ -237,16 +265,16 @@ def shift_by_offset(num: int, base: int, offset: int):
 def main() -> int:
     args = get_arguments()    
 
-    (num, delimiter_offset) = args.number
+    (num, delimiter_offset, is_negative) = args.number
 
-    print("num:", num)
+    print("num, del, neg:", num, delimiter_offset, is_negative)
     num = base_to_int(num, args.from_base)
     print("base_to_int:", num)
-    num = shift_by_offset(num, args.from_base, delimiter_offset)
+    num = shift_right(num, args.from_base, delimiter_offset)
     print("shift_by_offset:", num)
     num = num / args.from_unit * args.to_unit
     print("unit calculation:", num)
-    num = int_to_base(num, args.to_base)
+    num = float_to_base(num, args.to_base)
     print("int_to_base:", num)
 
     print("base - number - unit")
@@ -258,5 +286,3 @@ def main() -> int:
 if __name__ == "__main__":
     sys.exit(main())
 
-# notes will be removed later, shouldn't be here in the first place tho
-# 123.45 = 12345 / b^2
