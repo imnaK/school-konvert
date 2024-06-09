@@ -105,7 +105,6 @@ UNITS = MultiKeyStaticDict({
 ####################
 
 ALNUM_LIST = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
-ALNUM_DICT = {val: idx for idx, val in enumerate(ALNUM_LIST)}
 DELIMITER = "."
 BASE_MIN = 2
 BASE_MAX = 36
@@ -214,11 +213,11 @@ def float_to_int(num: float) -> int:
 
 def base_to_int(num: str, base: int) -> int:
     res = 0
-    for i in num:
-        c = ALNUM_DICT[i]
-        if c + 1 > base:
+    for digit in num:
+        n = ALNUM_LIST.index(digit)
+        if n + 1 > base:
             raise ValueError(f"Number '{num}' is not of base '{base}'.")
-        res = c + base * res
+        res = n + base * res
     return res
 
 def int_to_base(num: int, base: int) -> str:
