@@ -306,7 +306,7 @@ def main() -> int:
         num = shift_right(num, args.from_base, delimiter_offset)
         verbose("shift_right:", num)
     
-    num = num / args.from_unit * args.to_unit
+    num = num * args.from_unit / args.to_unit
     verbose("unit calculation:", num)
     
     num = float_to_base(num, args.to_base)

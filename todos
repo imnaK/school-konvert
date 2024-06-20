@@ -1,6 +1,3 @@
-check
-  conversion from Kb to KB (multiplied instead of divided by 8?)
-
 option for
   decimals - how many
   print line by line or in one line space separated
