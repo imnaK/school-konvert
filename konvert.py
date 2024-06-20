@@ -5,6 +5,7 @@ import argparse
 import sys
 
 flag_verbose = False
+flag_number_only = False
 
 class MultiKeyStaticDict:
     def __init__(self, initial_dict: Dict[tuple, int]):
@@ -214,6 +215,12 @@ def get_arguments() -> Any:
             help="More verbose output and mid-calculations",
             action="store_true",
             )
+    parser.add_argument(
+            "-l",
+            "--number-only",
+            help="Only output the final number as a result",
+            action="store_true",
+            )
 
     return parser.parse_args()
 
@@ -271,9 +278,10 @@ def shift_right(num: int, base: int, offset: int) -> float:
 ###########
 
 def init_flags(args):
-    global flag_verbose
+    global flag_verbose, flag_number_only
 
     flag_verbose = args.verbose
+    flag_number_only = args.number_only
 
 def verbose(*o):
     global flag_verbose
@@ -282,6 +290,8 @@ def verbose(*o):
         print(*o)
 
 def main() -> int:
+    global flag_number_only
+
     args = get_arguments()    
     init_flags(args)
 
@@ -301,10 +311,13 @@ def main() -> int:
     num = float_to_base(num, args.to_base)
     verbose("float_to_base:", num)
 
-    num_in = ("-" if is_negative else "") + args.number[0][:-delimiter_offset] + DELIMITER + args.number[0][-delimiter_offset:]
-    print("base - number - unit")
-    print(f"in :\t{args.from_base}\t{num_in}\t{args.from_unit}")
-    print(f"out:\t{args.to_base}\t{num}\t{args.to_unit}")
+    if flag_number_only:
+        print(num)
+    else:
+        num_in = ("-" if is_negative else "") + args.number[0][:-delimiter_offset] + DELIMITER + args.number[0][-delimiter_offset:]
+        print("base - number - unit")
+        print(f"in :\t{args.from_base}\t{num_in}\t{args.from_unit}")
+        print(f"out:\t{args.to_base}\t{num}\t{args.to_unit}")
     
     return 0
 
