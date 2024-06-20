@@ -109,25 +109,31 @@ DELIMITER = "."
 BASE_MIN = 2
 BASE_MAX = 36
 
+def get_abs(val: str) -> Tuple[str, bool]:
+    negative_count = 0
+   
+    while val[0] in "-+":
+        if val[0] == "-":
+            negative_count += 1
+        val = val[1:]
+    is_negative = negative_count % 2 == 1
+    
+    return (val, is_negative)
+
 def type_alphanumeric(val: str) -> Tuple[str, int, bool]:
-    val = val.strip()
-    delimiter_pos = val.find(DELIMITER) 
-    delimiter_offset = None 
+    (val_form, is_negative) = get_abs(val.strip().lower())
+
+    delimiter_pos = val_form.find(DELIMITER) 
+    delimiter_offset = None
     
     if delimiter_pos == -1:
         delimiter_offset = 0
     else:
-        val = val.replace(DELIMITER, "")
-        delimiter_offset = len(val) - delimiter_pos
+        val_form = val_form.replace(DELIMITER, "")
+        delimiter_offset = len(val_form) - delimiter_pos
 
-    is_negative = False
-    while val[0] in "-+":
-        if val[0] == "-" or is_negative:
-            is_negative = not is_negative
-        val = val[1:]
-
-    if all(c in ALNUM_LIST for c in val.lower()):
-        return (val.lower(), delimiter_offset, is_negative)
+    if all(c in ALNUM_LIST for c in val_form):
+        return (val_form, delimiter_offset, is_negative)
     
     raise argparse.ArgumentTypeError(f"Number '{val}' may exist, but this program does not support it.")
 
