@@ -1,3 +1,7 @@
+extras
+  table display as output
+  trim all inputs?
+
 option for
   decimals - how many
   print line by line or in one line space separated
