@@ -243,13 +243,6 @@ def base_to_int(num: str, base: int) -> int:
         res = n + base * res
     return res
 
-def int_to_base(num: int, base: int) -> str:
-    res = ""
-    while num > 0:
-        res = ALNUM_LIST[float_to_int(num % base)] + res
-        num //= base
-    return res
-
 def float_to_base(num: float, base: int) -> str:
     res = ""
     num_whole = float_to_int(num)
