@@ -308,8 +308,9 @@ def main() -> int:
     num = float_to_base(num, args.to_base)
     verbose("float_to_base:", num)
 
+    num_in = ("-" if is_negative else "") + args.number[0][:-delimiter_offset] + DELIMITER + args.number[0][-delimiter_offset:]
     print("base - number - unit")
-    print(f"in :\t{args.from_base}\t{args.number[0]}\t{args.from_unit}")
+    print(f"in :\t{args.from_base}\t{num_in}\t{args.from_unit}")
     print(f"out:\t{args.to_base}\t{num}\t{args.to_unit}")
     
     return 0
