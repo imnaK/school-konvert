@@ -1,6 +1,5 @@
-fix
-  false interpretation of "-n'-+-+-+3'". should be negative but is not
-  visual bug of comma (no comma in printed "in" even if entered)
+check
+  conversion from Kb to KB (multiplied instead of divided by 8?)
 
 option for
   decimals - how many
