@@ -4,6 +4,8 @@ from typing import Dict, Tuple, KeysView, Any
 import argparse
 import sys
 
+flag_verbose = False
+
 class MultiKeyStaticDict:
     def __init__(self, initial_dict: Dict[tuple, int]):
         self._dict: Dict[str, int] = {}
@@ -206,6 +208,12 @@ def get_arguments() -> Any:
             type=type_unit,
             default="bit",
             )
+    parser.add_argument(
+            "-v",
+            "--verbose",
+            help="More verbose output and mid-calculations",
+            action="store_true",
+            )
 
     return parser.parse_args()
 
@@ -269,24 +277,36 @@ def shift_right(num: int, base: int, offset: int) -> float:
 # Program #
 ###########
 
+def init_flags(args):
+    global flag_verbose
+
+    flag_verbose = args.verbose
+
+def verbose(*o):
+    global flag_verbose
+
+    if flag_verbose:
+        print(*o)
+
 def main() -> int:
     args = get_arguments()    
+    init_flags(args)
 
     (num, delimiter_offset, is_negative) = args.number
-    print("num, del, neg:", num, delimiter_offset, is_negative)
+    verbose("num, del, neg:", num, delimiter_offset, is_negative)
 
     num = base_to_int(num, args.from_base)
-    print("base_to_int:", num)
+    verbose("base_to_int:", num)
     
     if not delimiter_offset == 0:
         num = shift_right(num, args.from_base, delimiter_offset)
-        print("shift_right:", num)
+        verbose("shift_right:", num)
     
     num = num / args.from_unit * args.to_unit
-    print("unit calculation:", num)
+    verbose("unit calculation:", num)
     
     num = float_to_base(num, args.to_base)
-    print("float_to_base:", num)
+    verbose("float_to_base:", num)
 
     print("base - number - unit")
     print(f"in :\t{args.from_base}\t{args.number[0]}\t{args.from_unit}")
