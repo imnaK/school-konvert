@@ -190,18 +190,18 @@ def get_arguments() -> Any:
             default="decimal",
             )
     parser.add_argument(
-            "-u",
-            "--from-unit",
-            help=HELP_UNITS,
-            type=type_unit,
-            default="bit",
-            )
-    parser.add_argument(
             "-o",
             "--to-base",
             help=HELP_BASE,
             type=type_base,
             default="decimal",
+            )
+    parser.add_argument(
+            "-u",
+            "--from-unit",
+            help=HELP_UNITS,
+            type=type_unit,
+            default="bit",
             )
     parser.add_argument(
             "-t",
