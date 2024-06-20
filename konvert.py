@@ -169,6 +169,7 @@ def type_unit(val: str) -> int:
 def get_arguments() -> Any:
     HELP_BASE = f"Base range is from {BASE_MIN} to {BASE_MAX} and accepts numbers and also the common words."
     HELP_UNITS = "From bit over nibble and KB, TB up to YB. There are also Kb, KiB and Kib (also up to Yotta/Yobi). You can also write it out like 'bit' or 'kilobyte'."
+
     parser = argparse.ArgumentParser(
             description="""
             Unit Conversion: Effortlessly convert between storage units like Megabytes (MB), Kilobytes (KB), Gigabytes (GB), and more (including binary prefixes like GiB).
@@ -310,6 +311,10 @@ def main() -> int:
     
     num = float_to_base(num, args.to_base)
     verbose("float_to_base:", num)
+    
+    # add negative sign if negative
+    if is_negative:
+        num = "-" + num
 
     if flag_number_only:
         print(num)
