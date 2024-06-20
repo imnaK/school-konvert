@@ -273,16 +273,20 @@ def main() -> int:
     args = get_arguments()    
 
     (num, delimiter_offset, is_negative) = args.number
-
     print("num, del, neg:", num, delimiter_offset, is_negative)
+
     num = base_to_int(num, args.from_base)
     print("base_to_int:", num)
-    num = shift_right(num, args.from_base, delimiter_offset)
-    print("shift_by_offset:", num)
+    
+    if not delimiter_offset == 0:
+        num = shift_right(num, args.from_base, delimiter_offset)
+        print("shift_right:", num)
+    
     num = num / args.from_unit * args.to_unit
     print("unit calculation:", num)
+    
     num = float_to_base(num, args.to_base)
-    print("int_to_base:", num)
+    print("float_to_base:", num)
 
     print("base - number - unit")
     print(f"in :\t{args.from_base}\t{args.number[0]}\t{args.from_unit}")
