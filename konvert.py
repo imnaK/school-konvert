@@ -320,7 +320,8 @@ def main() -> int:
     if flag_number_only:
         print(num)
     else:
-        num_in = ("-" if is_negative else "") + args.number[0][:-delimiter_offset] + DELIMITER + args.number[0][-delimiter_offset:]
+        num_in = ("-" if is_negative else "") + args.number[0][:-delimiter_offset] + (DELIMITER if not delimiter_offset == 0 else "") + args.number[0][-delimiter_offset:]
+
         print("base - number - unit")
         print(f"in :\t{args.from_base}\t{num_in}\t{args.from_unit}")
         print(f"out:\t{args.to_base}\t{num}\t{args.to_unit}")
