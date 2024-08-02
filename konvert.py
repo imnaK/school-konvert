@@ -181,6 +181,7 @@ def get_arguments() -> Any:
             "--number",
             help=f"A number to input (any base from {BASE_MIN} to {BASE_MAX})",
             type=type_alphanumeric,
+            required=True,
             )
     parser.add_argument(
             "-b",
