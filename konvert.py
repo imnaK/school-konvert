@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from typing import Dict, Tuple, KeysView, Any
+from typing import Iterator, List, Dict, Tuple, KeysView, ItemsView, Any
 import argparse
 import sys
 
@@ -23,6 +23,9 @@ class MultiKeyStaticDict:
 
     def keys(self) -> KeysView[str]:
         return self._dict.keys()
+    
+    def items(self) -> ItemsView[str, int]:
+        return self._dict.items()
 
 BASES = MultiKeyStaticDict({
     ("bin", "binary")                                   : 2,
@@ -279,10 +282,10 @@ def shift_right(num: int, base: int, offset: int) -> float:
 # Util #
 ########
 
-def fill_spaces(s, l):
+def fill_spaces(s: str, l: int) -> str:
     return (" " * (l - len(s))) + s
 
-def output_as_table(two_dim_list):
+def output_as_table(two_dim_list: List[List[str]]):
     col_lenghts = [0] * max([len(inner_list) for inner_list in two_dim_list])
 
     for row in range(len(two_dim_list)):
@@ -300,6 +303,13 @@ def output_as_table(two_dim_list):
             print(" " + fill_spaces(str(two_dim_list[row][col]), col_lenghts[col]) + " |", end="")
         print()
     print(row_separator)
+
+def num_to_unit(num: int) -> str:
+    for key, val in UNITS.items():
+        if val == num:
+            return key
+    return None
+        
 
 ###########
 # Program #
@@ -349,8 +359,8 @@ def main() -> int:
         num_in = ("-" if is_negative else "") + args.number[0][:-delimiter_offset] + (DELIMITER if not delimiter_offset == 0 else "") + args.number[0][-delimiter_offset:]
         table = [
                     ["", "Number", "Unit", "Base"],
-                    ["Input", num_in, args.from_unit, args.from_base],
-                    ["Output", num, args.to_unit, args.to_base]
+                    ["Input", num_in, num_to_unit(args.from_unit), args.from_base],
+                    ["Output", num, num_to_unit(args.to_unit), args.to_base]
                 ]
 
         output_as_table(table)
