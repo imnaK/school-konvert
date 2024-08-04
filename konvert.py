@@ -191,7 +191,7 @@ def get_arguments() -> Any:
             default="decimal",
             )
     parser.add_argument(
-            "-o",
+            "-a",
             "--to-base",
             help=HELP_BASE,
             type=type_base,
@@ -275,6 +275,32 @@ def float_to_base(num: float, base: int) -> str:
 def shift_right(num: int, base: int, offset: int) -> float:
     return num / base ** offset
 
+########
+# Util #
+########
+
+def fill_spaces(s, l):
+    return (" " * (l - len(s))) + s
+
+def output_as_table(two_dim_list):
+    col_lenghts = [0] * max([len(inner_list) for inner_list in two_dim_list])
+
+    for row in range(len(two_dim_list)):
+        for col in range(len(two_dim_list[row])):
+            col_len = len(str(two_dim_list[row][col]))
+            if col_lenghts[col] < col_len:
+                col_lenghts[col] = col_len
+
+    col_sum = sum(col_lenghts)
+    row_separator = "+" + "+".join(["-" * (col_len + 2) for col_len in col_lenghts]) + "+"
+    for row in range(len(two_dim_list)):
+        print(row_separator)
+        print("|", end="")
+        for col in range(len(two_dim_list[row])):
+            print(" " + fill_spaces(str(two_dim_list[row][col]), col_lenghts[col]) + " |", end="")
+        print()
+    print(row_separator)
+
 ###########
 # Program #
 ###########
@@ -321,11 +347,14 @@ def main() -> int:
         print(num)
     else:
         num_in = ("-" if is_negative else "") + args.number[0][:-delimiter_offset] + (DELIMITER if not delimiter_offset == 0 else "") + args.number[0][-delimiter_offset:]
+        table = [
+                    ["", "Number", "Unit", "Base"],
+                    ["Input", num_in, args.from_unit, args.from_base],
+                    ["Output", num, args.to_unit, args.to_base]
+                ]
 
-        print("base - number - unit")
-        print(f"in :\t{args.from_base}\t{num_in}\t{args.from_unit}")
-        print(f"out:\t{args.to_base}\t{num}\t{args.to_unit}")
-    
+        output_as_table(table)
+
     return 0
 
 if __name__ == "__main__":
