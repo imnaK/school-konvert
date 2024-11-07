@@ -254,7 +254,7 @@ def float_to_int(num: float) -> int:
         return -(float_to_int(-num))
 
     num_str = str(num)
-    num_whole = num_str.split(".")[0]
+    num_whole = num_str.split(DELIMITER)[0]
 
     res = 0
     for digit in num_whole:
