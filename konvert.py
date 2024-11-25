@@ -8,6 +8,7 @@ import http.server
 import socketserver
 from urllib.parse import urlparse, parse_qs
 import json
+import webbrowser
 
 flag_verbose = False
 flag_number_only = False
@@ -476,6 +477,11 @@ def start_webui():
     with socketserver.TCPServer(("", WEBUI_PORT), WebUIHTTPHandler) as httpd:
         WebUIHTTPHandler.server_instance = httpd
         print(f"Serving WebUI at http://{WEBUI_HOST}:{WEBUI_PORT}")
+
+        # open the webui in a new tab
+        webbrowser.open_new_tab(f"http://{WEBUI_HOST}:{WEBUI_PORT}")
+
+        # serve the webui endpoints via the tcp server
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
