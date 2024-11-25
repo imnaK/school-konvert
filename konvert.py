@@ -430,6 +430,12 @@ WEBUI_HTML = (
 
 
 class WebUIHTTPHandler(http.server.SimpleHTTPRequestHandler):
+    server_instance = None
+
+    @classmethod
+    def set_server_instance(cls, server):
+        cls.server_instance = server
+
     def do_GET(self):
         # startpage
         if self.path == "/":
@@ -472,14 +478,18 @@ class WebUIHTTPHandler(http.server.SimpleHTTPRequestHandler):
             self.server_instance.server_close()
 
 
+def open_browser():
+    webbrowser.open_new_tab(f"http://{WEBUI_HOST}:{WEBUI_PORT}")
+
+
 def start_webui():
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("", WEBUI_PORT), WebUIHTTPHandler) as httpd:
-        WebUIHTTPHandler.server_instance = httpd
+        WebUIHTTPHandler.set_server_instance(httpd)
         print(f"Serving WebUI at http://{WEBUI_HOST}:{WEBUI_PORT}")
 
-        # open the webui in a new tab
-        webbrowser.open_new_tab(f"http://{WEBUI_HOST}:{WEBUI_PORT}")
+        # open the webui in a new tab in a new thread
+        threading.Thread(target=open_browser).start()
 
         # serve the webui endpoints via the tcp server
         try:
