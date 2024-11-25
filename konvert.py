@@ -132,9 +132,9 @@ WEBUI_BASE_OPTIONS = "\n".join(
 WEBUI_UNIT_OPTIONS = "\n".join(
     [
         '<option value="{0}">{1}</option>'.format(
-            key[0], key[0] + " | " + key[1].capitalize()
+            val, key[0] + " | " + key[1].capitalize()
         )
-        for key in UNITS_RAW
+        for key, val in UNITS_RAW.items()
     ]
 )
 
@@ -209,7 +209,7 @@ WEBUI_HTML = (
 
             .container {
                 margin: 0 auto;
-                width: min(60rem, 100%);
+                width: min(42rem, 100%);
             }
 
             .layout-duo {
@@ -250,7 +250,6 @@ WEBUI_HTML = (
                 height: 2.5rem;
                 border: none;
                 border-radius: var(--default-radius);
-                line-height: 1;
                 background-color: var(--color-base);
                 color: var(--color-text);
                 font-family: monospace;
@@ -401,7 +400,7 @@ WEBUI_HTML = (
             toBaseEl.addEventListener("change", handleChange);
             toUnitEl.addEventListener("change", handleChange);
 
-            function updateError(message) {
+            function updateError(message = "") {
                 if (!message) {
                     errorEl.style.display = "none";
                 } else {
@@ -422,8 +421,32 @@ WEBUI_HTML = (
             function handleChange(event) {
                 const inputNumber = inputNumberEl.value;
                 const inputValid = inputNumberRegex.test(inputNumber);
+                
+                if (!inputValid) {
+                    updateError("Please input a valid number: a-z A-Z 0-9");
+                    return;
+                }
 
-                updateError(inputValid ? "" : "Please input a valid number: a-z A-Z 0-9");
+                updateError();
+                updateOutputNumber();
+            }
+
+            function updateOutputNumber() {
+                const queryParams = new URLSearchParams({
+                    inputNumber: inputNumberEl.value,
+                    fromBase: fromBaseEl.value,
+                    fromUnit: fromUnitEl.value,
+                    toBase: toBaseEl.value,
+                    toUnit: toUnitEl.value,
+                }).toString();
+
+                fetch(\""""
+    + WEBUI_BACKEND_ENDPOINT
+    + """?\" + queryParams)
+                    .then(res => res.text())
+                    .then(data => {
+                        outputNumberEl.value = data.result;
+                    });
             }
         </script>
     </body>
@@ -453,15 +476,23 @@ class WebUIHTTPHandler(http.server.SimpleHTTPRequestHandler):
 
             try:
                 # get arguments from url
-                num1 = int(params["num1"][0])
-                num2 = int(params["num2"][0])
-                result = num1 + num2
+                inputNumber = params["inputNumber"][0]
+                fromBase = int(params["fromBase"][0])
+                fromUnit = int(params["fromUnit"][0])
+                toBase = int(params["toBase"][0])
+                toUnit = int(params["toUnit"][0])
 
                 # send happy response back to the client
                 self.send_response(200)
                 self.send_header("Content-type", "text/plain")
                 self.end_headers()
-                self.wfile.write(str(result).encode())
+
+                # return the converted output to the webui
+                res_data = {
+                    "result": "someData :3",
+                }
+                self.wfile.write(json.dumps(res_data).encode())
+                # self.wfile.write(json.dumps(response_data).encode())
             except (KeyError, ValueError):
                 # send sad response back to the client
                 self.send_error(400, "Invalid parameters")
