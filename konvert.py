@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from typing import Iterator, List, Dict, Tuple, KeysView, ItemsView, Any
+from typing import List, Dict, Tuple, KeysView, ItemsView, Any
 import argparse
 import sys
 import threading
@@ -196,6 +196,8 @@ WEBUI_HTML = (
 
             body {
                 background-color: var(--color-base);
+                background-image: radial-gradient(var(--color-surface) 0.125rem, transparent 0.125rem);
+                background-size: 2.125rem 2.125rem;
                 color: var(--color-text);
                 font-family: monospace;
                 font-size: 1rem;
@@ -261,6 +263,7 @@ WEBUI_HTML = (
             #shutdown {
                 cursor: pointer;
                 margin-top: 2rem;
+                float: right;
                 color: var(--color-base);
                 background-color: var(--color-love);
             }
@@ -684,13 +687,13 @@ def float_to_base(num: float, base: int) -> str:
         num_whole //= base
 
     res_decimals = ""
-    for i in range(10):
+    for _ in range(10):
         if num_decimals == 0:
             break
         num_decimals *= base
-        l = float_to_int(num_decimals)
-        res_decimals += ALNUM_LIST[l]
-        num_decimals -= l
+        digit = float_to_int(num_decimals)
+        res_decimals += ALNUM_LIST[digit]
+        num_decimals -= digit
 
     return (res + DELIMITER + res_decimals) if res_decimals else res
 
@@ -704,8 +707,8 @@ def shift_right(num: int, base: int, offset: int) -> float:
 ########
 
 
-def fill_spaces(s: str, l: int) -> str:
-    return (" " * (l - len(s))) + s
+def fill_spaces(text: str, n: int) -> str:
+    return (" " * (n - len(text))) + text
 
 
 def output_as_table(two_dim_list: List[List[str]]):
@@ -717,7 +720,6 @@ def output_as_table(two_dim_list: List[List[str]]):
             if col_lenghts[col] < col_len:
                 col_lenghts[col] = col_len
 
-    col_sum = sum(col_lenghts)
     row_separator = (
         "+" + "+".join(["-" * (col_len + 2) for col_len in col_lenghts]) + "+"
     )
@@ -737,7 +739,7 @@ def num_to_unit(num: int) -> str:
     for key, val in UNITS.items():
         if val == num:
             return key
-    return None
+    return ""
 
 
 ###########
