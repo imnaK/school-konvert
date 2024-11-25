@@ -413,7 +413,7 @@ WEBUI_HTML = (
                 fetch(\""""
     + WEBUI_SHUTDOWN_ENDPOINT
     + """\")
-                    .then(res => {
+                    .finally(() => {
                         window.close();
                     });
             }
