@@ -3,10 +3,11 @@
 from typing import Iterator, List, Dict, Tuple, KeysView, ItemsView, Any
 import argparse
 import sys
+import threading
 import http.server
 import socketserver
-import json
 from urllib.parse import urlparse, parse_qs
+import json
 
 flag_verbose = False
 flag_number_only = False
@@ -114,13 +115,15 @@ UNITS = MultiKeyStaticDict(UNITS_RAW)
 # HTML WebUI Stuff #
 ####################
 
+WEBUI_HOST = "localhost"
 WEBUI_PORT = 42069
-WEBUI_ENDPOINT = "/backend"
+WEBUI_BACKEND_ENDPOINT = "/backend"
+WEBUI_SHUTDOWN_ENDPOINT = "/shutdown"
 WEBUI_BASE_OPTIONS = "\n".join(
     [
         '<option value="{0}">{1}</option>'.format(
             val,
-            str(val).rjust(len(str(len(BASES_RAW))), " ") + " | " + key[0].capitalize(),
+            str(val) + " | " + key[0].capitalize(),
         )
         for key, val in BASES_RAW.items()
     ]
@@ -128,7 +131,7 @@ WEBUI_BASE_OPTIONS = "\n".join(
 WEBUI_UNIT_OPTIONS = "\n".join(
     [
         '<option value="{0}">{1}</option>'.format(
-            key[0], key[0].rjust(3, " ") + " | " + key[1].capitalize()
+            key[0], key[0] + " | " + key[1].capitalize()
         )
         for key in UNITS_RAW
     ]
@@ -237,7 +240,8 @@ WEBUI_HTML = (
             }
 
             input,
-            select {
+            select,
+            #shutdown {
                 appearance: none;
                 padding: 0 1rem;
                 height: 2.5rem;
@@ -250,16 +254,29 @@ WEBUI_HTML = (
                 font-size: 1rem;
                 box-shadow: 0.25rem 0.25rem 1.5rem 0 #000b,
                     -0.25rem -0.25rem 1.5rem -0.75rem #fff5;
-                transition: color 0.2s ease-out, box-shadow 0.2s ease-out;
+                transition: color 0.2s ease-out, background-color 0.2s ease-out, box-shadow 0.2s ease-out;
+            }
+
+            #shutdown {
+                cursor: pointer;
+                margin-top: 2rem;
+                color: var(--color-base);
+                background-color: var(--color-love);
             }
 
             input:focus,
             input:disabled,
             select:focus,
-            select:disabled {
+            select:disabled,
+            #shutdown:active {
                 box-shadow: 0.25rem 0.25rem 1.5rem 0 transparent,
                     -0.25rem -0.25rem 1.5rem -0.75rem transparent,
                     inset 0 0 1rem -0.5rem black;
+            }
+
+            #shutdown:active {
+                color: var(--color-love);
+                background-color: var(--color-base);
             }
 
             input:invalid {
@@ -342,28 +359,28 @@ WEBUI_HTML = (
                         </label>
                         <label
                             >&emsp;To Base
-                            <select id="to-base" name="to-base">
-"""
+                            <select id="to-base" name="to-base">"""
     + WEBUI_BASE_OPTIONS
     + """
                             </select>
                         </label>
                         <label
                             >&emsp;To Unit
-                            <select id="to-unit" name="to-unit">
-"""
+                            <select id="to-unit" name="to-unit">"""
     + WEBUI_UNIT_OPTIONS
     + """
                             </select>
                         </label>
                     </form>
                 </div>
+                <button id="shutdown" onclick="shutdownWebUI()">Exit Konvert WebUI</button>
             </div>
         </div>
 
         <!-- script for communicating with the backend -->
         <script>
             // get all elements
+            const errorEl = document.getElementById("error");
             const inputNumberEl = document.getElementById("input-number");
             const fromBaseEl = document.getElementById("from-base");
             const fromUnitEl = document.getElementById("from-unit");
@@ -380,11 +397,29 @@ WEBUI_HTML = (
             toBaseEl.addEventListener("change", handleChange);
             toUnitEl.addEventListener("change", handleChange);
 
+            function updateError(message) {
+                if (!message) {
+                    errorEl.style.display = "none";
+                } else {
+                    errorEl.textContent = message;
+                    errorEl.style.display = "block";
+                }
+            }
+
+            function shutdownWebUI() {
+                fetch(\""""
+    + WEBUI_SHUTDOWN_ENDPOINT
+    + """\")
+                    .then(res => {
+                        window.close();
+                    });
+            }
+
             function handleChange(event) {
                 const inputNumber = inputNumberEl.value;
                 const inputValid = inputNumberRegex.test(inputNumber);
 
-                // console.table({ inputNumber });
+                updateError(inputValid ? "" : "Please input a valid number: a-z A-Z 0-9");
             }
         </script>
     </body>
@@ -395,34 +430,59 @@ WEBUI_HTML = (
 
 class WebUIHTTPHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
+        # startpage
         if self.path == "/":
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
-            self.wfile.write(html_content.encode())
-        elif self.path.startswith(WEBUI_ENDPOINT):
+            self.wfile.write(WEBUI_HTML.encode())
+        # endpoint for talking to the backend
+        elif self.path.startswith(WEBUI_BACKEND_ENDPOINT):
             parsed_url = urlparse(self.path)
             params = parse_qs(parsed_url.query)
 
             try:
+                # get arguments from url
                 num1 = int(params["num1"][0])
                 num2 = int(params["num2"][0])
                 result = num1 + num2
 
+                # send happy response back to the client
                 self.send_response(200)
                 self.send_header("Content-type", "text/plain")
                 self.end_headers()
                 self.wfile.write(str(result).encode())
             except (KeyError, ValueError):
+                # send sad response back to the client
                 self.send_error(400, "Invalid parameters")
+        # endpoint for shutting the server down via the frontend
+        elif self.path.startswith(WEBUI_SHUTDOWN_ENDPOINT):
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"Shutting down...")
+            threading.Thread(target=self.shutdown_server).start()
+        # this page does not exist
         else:
             self.send_error(404)
 
+    def shutdown_server(self):
+        if self.server_instance:
+            self.server_instance.shutdown()
+            self.server_instance.server_close()
+
 
 def start_webui():
+    socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("", WEBUI_PORT), WebUIHTTPHandler) as httpd:
-        print(f"Serving WebUI at http://localhost:{WEBUI_PORT}")
-        httpd.serve_forever()
+        WebUIHTTPHandler.server_instance = httpd
+        print(f"Serving WebUI at http://{WEBUI_HOST}:{WEBUI_PORT}")
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            print("Server interrupted by user")
+        finally:
+            httpd.server_close()
+            print("Server closed")
 
 
 ####################
@@ -689,6 +749,12 @@ def main() -> int:
     args = get_arguments()
     init_flags(args)
 
+    # if webui flag is set, start it
+    if args.web_ui:
+        start_webui()
+        # return after exiting webui
+        return 0
+
     (num, delimiter_offset, is_negative) = args.number
     verbose("num, del, neg:", num, delimiter_offset, is_negative)
 
@@ -705,14 +771,15 @@ def main() -> int:
     num = float_to_base(num, args.to_base)
     verbose("float_to_base:", num)
 
-    # add zero in front if decimal and below 1
+    # add zero in front of number if it has "decimal' places and is below 1
     if num[0] == DELIMITER:
         num = "0" + num
 
-    # add negative sign if negative
+    # add negative sign if input number was negative
     if is_negative:
         num = "-" + num
 
+    # only print number as output if flag is set, else make a fancy table output
     if flag_number_only:
         print(num)
     else:

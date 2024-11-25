@@ -99,7 +99,8 @@
             }
 
             input,
-            select {
+            select,
+            #shutdown {
                 appearance: none;
                 padding: 0 1rem;
                 height: 2.5rem;
@@ -112,16 +113,29 @@
                 font-size: 1rem;
                 box-shadow: 0.25rem 0.25rem 1.5rem 0 #000b,
                     -0.25rem -0.25rem 1.5rem -0.75rem #fff5;
-                transition: color 0.2s ease-out, box-shadow 0.2s ease-out;
+                transition: color 0.2s ease-out, background-color 0.2s ease-out, box-shadow 0.2s ease-out;
+            }
+
+            #shutdown {
+                cursor: pointer;
+                margin-top: 2rem;
+                color: var(--color-base);
+                background-color: var(--color-love);
             }
 
             input:focus,
             input:disabled,
             select:focus,
-            select:disabled {
+            select:disabled,
+            #shutdown:active {
                 box-shadow: 0.25rem 0.25rem 1.5rem 0 transparent,
                     -0.25rem -0.25rem 1.5rem -0.75rem transparent,
                     inset 0 0 1rem -0.5rem black;
+            }
+
+            #shutdown:active {
+                color: var(--color-love);
+                background-color: var(--color-base);
             }
 
             input:invalid {
@@ -220,12 +234,14 @@
                         </label>
                     </form>
                 </div>
+                <button id="shutdown">Exit Konvert WebUI</button>
             </div>
         </div>
 
         <!-- script for communicating with the backend -->
         <script>
             // get all elements
+            const errorEl = document.getElementById("error");
             const inputNumberEl = document.getElementById("input-number");
             const fromBaseEl = document.getElementById("from-base");
             const fromUnitEl = document.getElementById("from-unit");
@@ -241,6 +257,15 @@
             fromUnitEl.addEventListener("change", handleChange);
             toBaseEl.addEventListener("change", handleChange);
             toUnitEl.addEventListener("change", handleChange);
+
+            function updateError(message) {
+                if (!message) {
+                    errorEl.style.display = "none";
+                } else {
+                    errorEl.textContent = message;
+                    errorEl.style.display = "block";
+                }
+            }
 
             function handleChange(event) {
                 const inputNumber = inputNumberEl.value;
