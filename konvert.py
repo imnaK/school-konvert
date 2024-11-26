@@ -423,6 +423,7 @@ WEBUI_HTML = (
     + """\")
                     .finally(() => {
                         window.close();
+                        alert("You may close this window now.");
                     });
             }
 
