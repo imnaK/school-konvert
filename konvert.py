@@ -315,8 +315,7 @@ WEBUI_HTML = (
         </div>
         <div class="container-wrapper">
             <div class="container">
-                <div id="error" style="display: none">
-                    <b>An expected error occured:</b><br />
+                <div id="error">
                     Please input a valid number matching the base.
                 </div>
             </div>
@@ -446,8 +445,15 @@ WEBUI_HTML = (
                     .then(res => res.text())
                     .then(mid => JSON.parse(mid))
                     .then(data => {
-                        console.table(data);
-                        console.log(typeof data);
+                        // if result gave an error, tell the user and return
+                        if ("error" in data) {
+                            updateError(data["error"]);
+                            outputNumberEl.value = "- Error -";
+                            return;
+                        }
+
+                        // if no error, just show the result
+                        updateError();
                         outputNumberEl.value = data.result;
                     });
             }
@@ -476,7 +482,6 @@ class WebUIHTTPHandler(http.server.SimpleHTTPRequestHandler):
         elif self.path.startswith(WEBUI_BACKEND_ENDPOINT):
             parsed_url = urlparse(self.path)
             params = parse_qs(parsed_url.query)
-            return_error = ""
 
             try:
                 # get arguments from url
