@@ -444,7 +444,10 @@ WEBUI_HTML = (
     + WEBUI_BACKEND_ENDPOINT
     + """?\" + queryParams)
                     .then(res => res.text())
+                    .then(mid => JSON.parse(mid))
                     .then(data => {
+                        console.table(data);
+                        console.log(typeof data);
                         outputNumberEl.value = data.result;
                     });
             }
@@ -477,10 +480,45 @@ class WebUIHTTPHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 # get arguments from url
                 inputNumber = params["inputNumber"][0]
-                fromBase = int(params["fromBase"][0])
-                fromUnit = int(params["fromUnit"][0])
-                toBase = int(params["toBase"][0])
-                toUnit = int(params["toUnit"][0])
+                fromBase = params["fromBase"][0]
+                fromUnit = params["fromUnit"][0]
+                toBase = params["toBase"][0]
+                toUnit = params["toUnit"][0]
+
+                # argument sanitization
+                try:
+                    inputNumber = type_alphanumeric(inputNumber)
+                    fromBase = type_base(fromBase)
+                    fromUnit = type_unit(fromUnit)
+                    toBase = type_base(toBase)
+                    toUnit = type_unit(toUnit)
+                except Exception as e:
+                    raise e
+
+                # conversation
+                (num, delimiter_offset, is_negative) = inputNumber
+                verbose("num, del, neg:", num, delimiter_offset, is_negative)
+
+                num = base_to_int(num, fromBase)
+                verbose("base_to_int:", num)
+
+                if not delimiter_offset == 0:
+                    num = shift_right(num, fromBase, delimiter_offset)
+                    verbose("shift_right:", num)
+
+                num = num * fromUnit / toUnit
+                verbose("unit calculation:", num)
+
+                num = float_to_base(num, toBase)
+                verbose("float_to_base:", num)
+
+                # add zero in front of number if it has "decimal' places and is below 1
+                if num[0] == DELIMITER:
+                    num = "0" + num
+
+                # add negative sign if input number was negative
+                if is_negative:
+                    num = "-" + num
 
                 # send happy response back to the client
                 self.send_response(200)
@@ -489,13 +527,13 @@ class WebUIHTTPHandler(http.server.SimpleHTTPRequestHandler):
 
                 # return the converted output to the webui
                 res_data = {
-                    "result": "someData :3",
+                    "result": num,
                 }
                 self.wfile.write(json.dumps(res_data).encode())
                 # self.wfile.write(json.dumps(response_data).encode())
-            except (KeyError, ValueError):
+            except (KeyError, ValueError) as e:
                 # send sad response back to the client
-                self.send_error(400, "Invalid parameters")
+                self.send_error(400, "Invalid parameters", str(e))
         # endpoint for shutting the server down via the frontend
         elif self.path.startswith(WEBUI_SHUTDOWN_ENDPOINT):
             self.send_response(200)
