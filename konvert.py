@@ -122,9 +122,10 @@ WEBUI_BACKEND_ENDPOINT = "/backend"
 WEBUI_SHUTDOWN_ENDPOINT = "/shutdown"
 WEBUI_BASE_OPTIONS = "\n".join(
     [
-        '<option value="{0}">{1}</option>'.format(
+        '<option value="{0}"{2}>{1}</option>'.format(
             val,
             str(val) + " | " + key[0].capitalize(),
+            " selected" if val == 10 else "",
         )
         for key, val in BASES_RAW.items()
     ]
@@ -132,7 +133,8 @@ WEBUI_BASE_OPTIONS = "\n".join(
 WEBUI_UNIT_OPTIONS = "\n".join(
     [
         '<option value="{0}">{1}</option>'.format(
-            val, key[0] + " | " + key[1].capitalize()
+            val,
+            key[0] + " | " + key[1].capitalize(),
         )
         for key, val in UNITS_RAW.items()
     ]
