@@ -263,8 +263,9 @@ WEBUI_HTML = (
 
             #shutdown {
                 cursor: pointer;
+                display: block;
                 margin-top: 2rem;
-                float: right;
+                margin-left: auto;
                 color: var(--color-base);
                 background-color: var(--color-love);
             }
@@ -317,9 +318,7 @@ WEBUI_HTML = (
         </div>
         <div class="container-wrapper">
             <div class="container">
-                <div id="error">
-                    Please input a valid number matching the base.
-                </div>
+                <div id="error"></div>
             </div>
             <div class="container">
                 <div class="layout-duo">
@@ -380,6 +379,11 @@ WEBUI_HTML = (
                 <button id="shutdown" onclick="shutdownWebUI()">Exit Konvert WebUI</button>
             </div>
         </div>
+        <div class="container-wrapper">
+            <div class="container">
+                <p><b>Please note:</b> This is merely a school project, not the next space shuttle launch! 🚀 While this simple program is great for basic conversions, it might start sweating bullets when faced with large differences in base or unit—think of it as trying to convert a snail's pace to a cheetah's speed. If you throw in numbers that are humongously far apart, well, let’s just say the results may not be as precise as you'd hope. So, keep your expectations in check and let’s have some fun with it!</p>
+            </div>
+        </div>
 
         <!-- script for communicating with the backend -->
         <script>
@@ -401,12 +405,15 @@ WEBUI_HTML = (
             toBaseEl.addEventListener("change", handleChange);
             toUnitEl.addEventListener("change", handleChange);
 
+            updateError("Please input a valid number matching the base.");
+
             function updateError(message = "") {
                 if (!message) {
                     errorEl.style.display = "none";
                 } else {
                     errorEl.textContent = message;
                     errorEl.style.display = "block";
+                    outputNumberEl.value = "- Error -";
                 }
             }
 
@@ -424,7 +431,7 @@ WEBUI_HTML = (
                 const inputValid = inputNumberRegex.test(inputNumber);
                 
                 if (!inputValid) {
-                    updateError("Please input a valid number: a-z A-Z 0-9");
+                    updateError("Please input a valid number matching the base.");
                     return;
                 }
 
@@ -450,7 +457,6 @@ WEBUI_HTML = (
                         // if result gave an error, tell the user and return
                         if ("error" in data) {
                             updateError(data["error"]);
-                            outputNumberEl.value = "- Error -";
                             return;
                         }
 
@@ -754,8 +760,10 @@ def float_to_base(num: float, base: int) -> str:
         num_whole //= base
 
     res_decimals = ""
-    for _ in range(10):
-        if abs(num_decimals) < 1e-10:
+    # only calculate a precision of 8 digits or else the devil himself show up and throw all kinds of weird errors
+    for _ in range(8):
+        # silence this unprecise floating point to death so no weird fucks will be appended
+        if abs(num_decimals) < 1e-8:
             break
         num_decimals *= base
         digit = float_to_int(num_decimals)
@@ -774,10 +782,12 @@ def shift_right(num: int, base: int, offset: int) -> float:
 ########
 
 
+# fill spaces to the left up to n minus length of str
 def fill_spaces(text: str, n: int) -> str:
     return (" " * (n - len(text))) + text
 
 
+# output a two dimensional list as a fancy ascii art table
 def output_as_table(two_dim_list: List[List[str]]):
     col_lenghts = [0] * max([len(inner_list) for inner_list in two_dim_list])
 
@@ -821,6 +831,8 @@ def init_flags(args):
     flag_number_only = args.number_only
 
 
+# call this if you want to print something to the screen if the user chose verbose output
+# good for debugging
 def verbose(*o):
     global flag_verbose
 

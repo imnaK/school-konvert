@@ -1,9 +1,8 @@
 extras
+  use numpy for better precision?
   only show base when a base was given
   only show unit when a unit was given
   fix error message outputting number without delimiter
   trim all inputs?
   add more comments
-  decimals - how many
-  print line by line or in one line space separated
   
