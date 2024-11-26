@@ -476,49 +476,44 @@ class WebUIHTTPHandler(http.server.SimpleHTTPRequestHandler):
         elif self.path.startswith(WEBUI_BACKEND_ENDPOINT):
             parsed_url = urlparse(self.path)
             params = parse_qs(parsed_url.query)
+            return_error = ""
 
             try:
                 # get arguments from url
                 inputNumber = params["inputNumber"][0]
-                fromBase = params["fromBase"][0]
-                fromUnit = params["fromUnit"][0]
-                toBase = params["toBase"][0]
-                toUnit = params["toUnit"][0]
+                fromBase = int(params["fromBase"][0])
+                fromUnit = int(params["fromUnit"][0])
+                toBase = int(params["toBase"][0])
+                toUnit = int(params["toUnit"][0])
+
+                # predefine return data
+                return_data = {}
 
                 # argument sanitization
                 try:
-                    inputNumber = type_alphanumeric(inputNumber)
-                    fromBase = type_base(fromBase)
-                    fromUnit = type_unit(fromUnit)
-                    toBase = type_base(toBase)
-                    toUnit = type_unit(toUnit)
+                    # conversation (same as below)
+                    (num, delimiter_offset, is_negative) = type_alphanumeric(
+                        inputNumber
+                    )
+                    num = base_to_int(num, fromBase)
+                    if not delimiter_offset == 0:
+                        num = shift_right(num, fromBase, delimiter_offset)
+                    num = num * fromUnit / toUnit
+                    num = float_to_base(num, toBase)
+
+                    # add zero in front of number if it has "decimal' places and is below 1
+                    if num[0] == DELIMITER:
+                        num = "0" + num
+
+                    # add negative sign if input number was negative
+                    if is_negative:
+                        num = "-" + num
+
+                    return_data["result"] = num
                 except Exception as e:
-                    raise e
+                    return_data["error"] = str(e)
 
-                # conversation
-                (num, delimiter_offset, is_negative) = inputNumber
-                verbose("num, del, neg:", num, delimiter_offset, is_negative)
-
-                num = base_to_int(num, fromBase)
-                verbose("base_to_int:", num)
-
-                if not delimiter_offset == 0:
-                    num = shift_right(num, fromBase, delimiter_offset)
-                    verbose("shift_right:", num)
-
-                num = num * fromUnit / toUnit
-                verbose("unit calculation:", num)
-
-                num = float_to_base(num, toBase)
-                verbose("float_to_base:", num)
-
-                # add zero in front of number if it has "decimal' places and is below 1
-                if num[0] == DELIMITER:
-                    num = "0" + num
-
-                # add negative sign if input number was negative
-                if is_negative:
-                    num = "-" + num
+                # if errored then return here, else convert
 
                 # send happy response back to the client
                 self.send_response(200)
@@ -526,11 +521,7 @@ class WebUIHTTPHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
 
                 # return the converted output to the webui
-                res_data = {
-                    "result": num,
-                }
-                self.wfile.write(json.dumps(res_data).encode())
-                # self.wfile.write(json.dumps(response_data).encode())
+                self.wfile.write(json.dumps(return_data).encode())
             except (KeyError, ValueError) as e:
                 # send sad response back to the client
                 self.send_error(400, "Invalid parameters", str(e))
@@ -583,7 +574,7 @@ BASE_MIN = 2
 BASE_MAX = 36
 
 
-def get_abs(val: str) -> Tuple[str, bool]:
+def get_abs_and_sign(val: str) -> Tuple[str, bool]:
     negative_count = 0
 
     while val[0] in "-+":
@@ -596,7 +587,7 @@ def get_abs(val: str) -> Tuple[str, bool]:
 
 
 def type_alphanumeric(val: str) -> Tuple[str, int, bool]:
-    (val_form, is_negative) = get_abs(val.strip().lower())
+    (val_form, is_negative) = get_abs_and_sign(val.strip().lower())
 
     delimiter_pos = val_form.find(DELIMITER)
     delimiter_offset = None
@@ -757,7 +748,7 @@ def float_to_base(num: float, base: int) -> str:
 
     res_decimals = ""
     for _ in range(10):
-        if num_decimals == 0:
+        if abs(num_decimals) < 1e-10:
             break
         num_decimals *= base
         digit = float_to_int(num_decimals)
