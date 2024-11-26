@@ -423,8 +423,9 @@ WEBUI_HTML = (
     + """\")
                     .finally(() => {
                         window.close();
-                        alert("You may close this window now.");
+                        updateError("The WebUI is stopped. You may close this window now.");
                     });
+
             }
 
             function handleChange(event) {
@@ -495,10 +496,10 @@ class WebUIHTTPHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 # get arguments from url
                 inputNumber = params["inputNumber"][0]
-                fromBase = int(params["fromBase"][0])
-                fromUnit = int(params["fromUnit"][0])
-                toBase = int(params["toBase"][0])
-                toUnit = int(params["toUnit"][0])
+                fromBase = base_to_int(params["fromBase"][0], 10)
+                fromUnit = base_to_int(params["fromUnit"][0], 10)
+                toBase = base_to_int(params["toBase"][0], 10)
+                toUnit = base_to_int(params["toUnit"][0], 10)
 
                 # predefine return data
                 return_data = {}
@@ -766,6 +767,7 @@ def float_to_base(num: float, base: int) -> str:
         # silence this unprecise floating point to death so no weird fucks will be appended
         if abs(num_decimals) < 1e-8:
             break
+
         num_decimals *= base
         digit = float_to_int(num_decimals)
         res_decimals += ALNUM_LIST[digit]
